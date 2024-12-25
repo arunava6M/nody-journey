@@ -1,5 +1,5 @@
 /*
-  Now we will start with filter, sorting & Pagination
+  Next we will create aggregation and unsderstand what it is
 */
 
 const express= require('express');
@@ -24,7 +24,8 @@ db.once('open', () => console.log('Conected to MongoDB with Mongoose !'))
 const userSchema= new mongoose.Schema({
   name: {type: String, required: true}, // here required true will make sure all request to add a user has a name
   age: {type: Number, required: true},
-  email: {type: String}
+  email: {type: String, required: true},
+  city: {type: String}
 })
 
 //Now mongoose uses the above schema to create a Model to interact with the User collection in the db
@@ -36,6 +37,46 @@ const User = mongoose.model('User', userSchema)
   Now you are tryin to talk like sharukh, so you started talking and the model in your mid is constantly telling you to talk like that ot not to talk like that.
   Beneath the Model has stored data how sharukh talks and is constantly matches with your try to talk. So the Model use the defined schema to check the data you provide while doing CRUD operations
 */
+
+app.get('/users/aggregated',async (req,res) => {
+  try{
+    const {way} = req.query
+    const pipeline = []
+    if(way=='age'){
+      pipeline.push(
+        {$group: {_id: '$city', avgAge: {$avg: '$age'}}},
+        // this go over each document and groups the data in a new response where id will be city and avgAge will have the average of all ages in that city
+        {$project: {
+          _id: 0, // dont show the field _id
+          city: '$_id', // replace the _id with city as key
+          avgAge: 1 // also we need to show the count, so basically show or not show depends on 1 or 0 value
+        }}
+      )
+    }
+    if(way=='count'){
+      pipeline.push(
+        {$group: {_id: '$city', count: {$sum: 1}}},
+        // this go over each document and groups the data in a new response where id will be city and avgAge will have the average of all ages in that city
+        {$project: {
+          _id: 0, // dont show the field _id
+          city: '$_id', // replace the _id with city as key
+          count: 1 // also we need to show the count, so basically show or not show depends on 1 or 0 value
+        }}
+      )
+    }
+    /*
+    What does $project do ?
+
+    If we dont add $project, we will get response like this {_id: <city name>, avgAge/count: <number>}
+    but if you want to show _id as "city" the response becomes more meaningful
+    so that is done by $project, another stage in pipeline where you can shape the output
+
+    Similarly there are many other stages in the aggregation pipeline
+    */
+    const result = await User.aggregate(pipeline)
+    res.status(200).json({message: 'success', result})
+  }catch (error){res.status(400).json({message: error.message})}
+})
 
 app.get('/users',async (req,res) => {
   try{
@@ -102,11 +143,19 @@ app.get('/users',async (req,res) => {
 })
 
 app.post('/users',async (req,res) => {
-  console.log(req.body)
   try {
     const body = req.body
     await new User(body).save() // here .save is required to save the newly created instance from new User(body)
     res.status(200).json({message: 'Suucess'})
+  } catch (err){
+    res.status(400).json({error: err.message})
+  }
+})
+
+app.post('/users/instertMany', async (req,res) => {
+  try {
+    const result = await User.insertMany(req.body)
+    res.status(200).json({message: 'Suucess', savedUsers: result})
   } catch (err){
     res.status(400).json({error: err.message})
   }
@@ -140,6 +189,15 @@ app.delete('/users/:id',async (req,res)=>{
   }catch(error){
     res.status(400).json({error: error.message})
   }
+})
+
+app.delete('/deleteAllUser', async (req,res) => {
+  try{
+    const result = await User.deleteMany({})
+    if(result.deletedCount > 0){
+      res.status(200).json({message: 'All user deleted !'})
+    }
+  }catch(error){res.status(400).json({error: error.message})}
 })
 
 app.listen(3000, () => {
