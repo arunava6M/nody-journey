@@ -80,19 +80,3 @@ app.delete('/users/:id',async (req,res)=>{
 app.listen(3000, () => {
   console.log('Server is running on 3000 !')
 })
-
-
-// async function main(){
- 
-//   try {
-//     await client.connect()
-//     console.log('connected to MongoDB')
-//     const db = client.db('22_12_db')
-//     const collection = db.collection('users')
-//     // const users = await collection.find().toArray()
-//     console.log(users)
-//   }catch (err){
-//     console.error(err)
-//   }
-// }
-// main();
