@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt")
 const mongoose = require('mongoose')
 //Now in mongoose before defining any route , we need to configure the schema
 const userSchema= new mongoose.Schema({
