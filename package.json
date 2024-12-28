@@ -3,7 +3,7 @@
   "scripts": {
   
     
-  "start": "nodemon nody.js"
+  "start": "node server.js"
   
   },
   

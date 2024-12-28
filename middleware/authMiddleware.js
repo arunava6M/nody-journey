@@ -1,7 +1,7 @@
-const jwt = require('jwt')
+const jwt = require("jsonwebtoken")
 const {SECRET_KEY} = require('../config/constants')
 
-exports.authMiddleware = (req,res,next) => {
+function authMiddleware (req,res,next) {
   const token = req.headers['authorization']
   if(!token){
     return res.status(400).json({error: 'Token not provided'})
@@ -14,3 +14,5 @@ exports.authMiddleware = (req,res,next) => {
     res.status(400).json({error: 'Invalid or expired token', details: error.message})
   }
 }
+
+module.exports = authMiddleware

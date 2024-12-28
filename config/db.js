@@ -1,3 +1,4 @@
+const mongoose =  require("mongoose")
 exports.connectDB = () => {
   //mongoose configuration to connect to db
   mongoose.connect('mongodb://localhost:27017/22_12_db', {

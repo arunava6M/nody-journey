@@ -47,6 +47,6 @@ userSchema.pre('save',async function(next){ // Everytime a save is happening, ju
 })
 
 //Now mongoose uses the above schema to create a Model to interact with the User collection in the db
-mongoose.export = mongoose.model('User', userSchema)
+module.exports = mongoose.model('User', userSchema)
 
 //Now this Model can be used for CRUD operation.

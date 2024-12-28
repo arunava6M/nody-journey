@@ -1,4 +1,6 @@
 const express = require("express")
+const authMiddleware = require("../middleware/authMiddleware")
+const User = require("../model/User")
 
 const router = express.Router()
 
@@ -44,6 +46,7 @@ router.get('/aggregated',async (req,res) => {
 })
 
 router.get('/', authMiddleware, async (req,res) => {
+  console.log('inside /')
   try{
     // filter
     const { age, name} = req.query // suppose we want to filter by age &/or name like /users?age=39 /users?name=John
@@ -103,6 +106,7 @@ router.get('/', authMiddleware, async (req,res) => {
       
     res.status(200).json(users)  
   } catch (err) {
+    console.log(err.message)
     res.status(400).json({error: err.message})
   }
 })
